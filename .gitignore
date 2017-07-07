@@ -1,0 +1,10 @@
+#Ignore all
+/*
+
+#Except
+!.gitignore
+!app/
+!public/
+!routes/
+!resources/
+
