@@ -1,6 +1,6 @@
 #Ignore All
 */
-Kernal.php
+Kernel.php
 
 #Except
 !Controllers/
