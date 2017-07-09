@@ -1,12 +1,20 @@
 <?php
 
+/*
+ * API Functions:
+ *     history - http://ss-trading.hopto.org/api/history/{PAIR}?{PARAMS}
+ *		 optional params:
+ *			limit = limit for number of results
+ *			start = unix timestamp starting date (end date specified by limit and period)
+ */
+
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use App\Libraries\influxdb\InfluxDB;
 use Exception;
-
 
 class ApiController extends Controller {
 
@@ -35,6 +43,8 @@ class ApiController extends Controller {
 
 			$results = $this->db->query($sql, 's');
 
+			//$data = json_encode($this->format_json_array($results->getResults()));
+			//return response()->json($data);
 			return response()->json($this->format_json_array($results->getResults()));
 		}
 		catch (Exception $ex) {
@@ -53,6 +63,7 @@ class ApiController extends Controller {
 			$sql = $this->build_recent_query($pair);
 			// Run query
 			$results = $this->db->query($sql, 's');
+
 			// Format results and return json response
 			return response()->json($this->format_json_array($results->getResults()));
 		}
@@ -116,7 +127,7 @@ class ApiController extends Controller {
 
 		$sql .= "ORDER BY time DESC ";
 		$sql .= "LIMIT " . $limit;
-		
+
 		return $sql;
 	}
 
@@ -196,7 +207,6 @@ class ApiController extends Controller {
 		if ($limit && !filter_var($limit, FILTER_VALIDATE_INT)) {
   			throw new Exception('Invalid limit. Use only integer values representing limit for number of results');
 		}
-
 		if (isset($limit) && $limit){
 			return ($limit > $this->MAX_QUERY_LIMIT) ? $this->MAX_QUERY_LIMIT : $limit;
 		}
@@ -225,16 +235,31 @@ class ApiController extends Controller {
 		return $str;
 	}
 
-	// Format results to get formatted array for JSON response
+	// Format results to get forjson parsematted array for JSON response
 	private function format_json_array($query_results) {
 		$arr = array();
 		foreach ($query_results as $row) {
-			$row->data['high']  = $this->format_num($row->data['high']);
-			$row->data['low']  = $this->format_num($row->data['low']);
-			$row->data['quote_volume']  = $this->format_num($row->data['quote_volume']);
-			$row->data['volume']  = $this->format_num($row->data['volume']);
-			$row->data['weighted_average']  = $this->format_num($row->data['weighted_average']);
-			$arr[] = $row->data;
+			/*
+			$row->data["high"] 				= $this->format_num($row->data['high']);
+			$row->data["low"] 				= $this->format_num($row->data['low']);
+			$row->data["quote_volume"]  	= $this->format_num($row->data['quote_volume']);
+			$row->data["volume"] 			= $this->format_num($row->data['volume']);
+			$row->data["weighted_average"]  = $this->format_num($row->data['weighted_average']);+
+			
+			*/
+			$rowArr = array(
+				"time" 				=> $row->data['time'],
+				"open" 				=> $row->data['open'],
+				"close" 			=> $row->data['close'],
+				"high"  			=> $row->data['high'],
+				"low"   			=> $row->data['low'],
+				"quote_volume"		=> $row->data['quote_volume'],
+				"volume" 			=> $row->data['volume'],
+				"weighted_average"  => $row->data['weighted_average']
+
+			);
+			$arr[] = $rowArr;
+			//$arr[] = $row->data;
 		}
 		return $arr;
 	}

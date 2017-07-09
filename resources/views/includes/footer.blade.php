@@ -11,6 +11,10 @@
         <script src="{{ URL::asset('vendor/morris.min.js') }}"></script>
         <script src="{{ URL::asset('vendor/morris-data.js') }}"></script>
 
+        <!-- Highcharts CDN -->
+        <script src="https://code.highcharts.com/stock/highstock.js"></script>
+        <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+
         <!-- Custom Theme JavaScript -->
         <script src="{{ URL::asset('js/sb-admin-2.min.js') }}"></script>
 
