@@ -17,7 +17,7 @@
         <!-- MetisMenu CSS -->
         <link href="{{ URL::asset('vendor/metisMenu.min.css') }}" rel="stylesheet">
 
-        <!-- Custom CSS -->
+        <!-- Theme CSS -->
         <link href="{{ URL::asset('css/sb-admin-2.css') }}" rel="stylesheet">
 
         <!-- Morris Charts CSS -->
@@ -25,6 +25,9 @@
 
         <!-- Font Awesome -->
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+        <!-- Custom CSS -->
+        <link href="{{ URL::asset('css/style.css') }}" rel="stylesheet">
 
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>

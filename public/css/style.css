@@ -1,0 +1,47 @@
+.header-fixed {
+    width: 100%
+}
+
+.header-fixed > thead,
+.header-fixed > tbody,
+.header-fixed > thead > tr,
+.header-fixed > tbody > tr,
+.header-fixed > thead > tr > th,
+.header-fixed > tbody > tr > td {
+    display: block;
+    font-size: 0.95em;
+}
+
+.header-fixed > tbody > tr:after,
+.header-fixed > thead > tr:after {
+    content: ' ';
+    display: block;
+    visibility: hidden;
+    clear: both;
+}
+
+.header-fixed > tbody {
+    overflow-y: auto;
+    height: 400px;
+}
+
+.header-fixed > tbody > tr > td,
+.header-fixed > thead > tr > th {
+    width: 16.5%;
+    float: left;
+}
+
+
+.ticker-table {
+    font-size: 0.8em;
+}
+
+#candlestick-overlay {
+    display: none;
+}
+
+#candlestick-refresh-icon {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}

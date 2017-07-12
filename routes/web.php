@@ -11,9 +11,13 @@
 |
 */
 
+/*
 Route::get('/', function () {
     return view('dashboard');
 });
+*/
+
+Route::get('/', 'DashboardController@index');
 
 //Route::controller('test', 'TestController');
 Route::get('test', 'TestController@index');

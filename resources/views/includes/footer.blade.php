@@ -15,8 +15,14 @@
         <script src="https://code.highcharts.com/stock/highstock.js"></script>
         <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
 
-        <!-- Custom Theme JavaScript -->
+        <!-- Sorttable tables plugin -->
+        <script src="{{ URL::asset('vendor/sorttable.js') }}"></script>
+
+        <!-- Theme JavaScript -->
         <script src="{{ URL::asset('js/sb-admin-2.min.js') }}"></script>
 
+        <!-- Custom JavaScript -->
+        <script src="{{ URL::asset('js/candlestick.js') }}"></script>
+        <script src="{{ URL::asset('js/dashboard.js') }}"></script>
     </body>
 </html>

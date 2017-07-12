@@ -14,15 +14,15 @@
     <!-- /.row -->
     <div class="row">
         <div class="col-lg-3 col-md-6">
-            <div class="panel panel-primary">
+            <div class="panel panel-green">
                 <div class="panel-heading">
                     <div class="row">
                         <div class="col-xs-3">
-                            <i class="fa fa-comments fa-5x"></i>
+                            <i class="fa fa-money fa-5x" aria-hidden="true"></i>
                         </div>
                         <div class="col-xs-9 text-right">
                             <div class="huge">26</div>
-                            <div>New Comments!</div>
+                            <div>Portfolio Value</div>
                         </div>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
             </div>
         </div>
         <div class="col-lg-3 col-md-6">
-            <div class="panel panel-green">
+            <div class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="row">
                         <div class="col-xs-3">
@@ -107,31 +107,33 @@
         <div class="col-lg-8">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <i class="fa fa-bar-chart-o fa-fw"></i> Area Chart Example
+                    <i class="fa fa-bar-chart-o fa-fw"></i> Last 60 Days
                     <div class="pull-right">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                                Actions
+                        <div class="btn-group" style='bottom: 6px'>
+                            <select id='candlestick-select'>
+                                @foreach ($db_pairs as $pair)
+                                    <option value='{{ $pair }}'>{{ strtoupper($pair) }}</option>
+                                @endforeach
+                            </select>
+                            <!-- button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                                Select Trading Pair
                                 <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu pull-right" role="menu">
-                                <li><a href="#">Action</a>
-                                </li>
-                                <li><a href="#">Another action</a>
-                                </li>
-                                <li><a href="#">Something else here</a>
-                                </li>
-                                <li class="divider"></li>
-                                <li><a href="#">Separated link</a>
-                                </li>
-                            </ul>
+                            <ul class="dropdown-menu pull-right" role="menu" style='height: 200px; overflow-y: auto'>
+                                @foreach ($db_pairs as $pair)
+                                    <li>{{ $pair }}</li>
+                                @endforeach
+                            </ul -->
                         </div>
                     </div>
                 </div>
                 <!-- /.panel-heading -->
                 <div class="panel-body">
                     <!-- div id="morris-area-chart"></div -->
-                    <div id="container" style="height: 450px; min-width: 310px"></div>
+                    <span id="candlestick-overlay">
+                        Loading chart...<i class="fa fa-refresh fa-spin fa-5x fa-fw" id="candlestick-refresh-icon"></i>
+                    </span>
+                    <div id="candlestick-chart" style="height: 450px; min-width: 310px"></div>
                 </div>
                 <!-- /.panel-body -->
             </div>
@@ -269,65 +271,69 @@
             <!-- /.panel -->
         </div>
         <!-- /.col-lg-8 -->
+
+        <!-- Right sidebar info -->
         <div class="col-lg-4">
+
+            <!-- Ticker panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <i class="fa fa-bell fa-fw"></i> Notifications Panel
+                    <i class="fa fa-exchange" aria-hidden="true"></i> Market Tickers
                 </div>
                 <!-- /.panel-heading -->
                 <div class="panel-body">
-                    <div class="list-group">
-                        <a href="#" class="list-group-item">
-                            <i class="fa fa-comment fa-fw"></i> New Comment
-                            <span class="pull-right text-muted small"><em>4 minutes ago</em>
-                            </span>
-                        </a>
-                        <a href="#" class="list-group-item">
-                            <i class="fa fa-twitter fa-fw"></i> 3 New Followers
-                            <span class="pull-right text-muted small"><em>12 minutes ago</em>
-                            </span>
-                        </a>
-                        <a href="#" class="list-group-item">
-                            <i class="fa fa-envelope fa-fw"></i> Message Sent
-                            <span class="pull-right text-muted small"><em>27 minutes ago</em>
-                            </span>
-                        </a>
-                        <a href="#" class="list-group-item">
-                            <i class="fa fa-tasks fa-fw"></i> New Task
-                            <span class="pull-right text-muted small"><em>43 minutes ago</em>
-                            </span>
-                        </a>
-                        <a href="#" class="list-group-item">
-                            <i class="fa fa-upload fa-fw"></i> Server Rebooted
-                            <span class="pull-right text-muted small"><em>11:32 AM</em>
-                            </span>
-                        </a>
-                        <a href="#" class="list-group-item">
-                            <i class="fa fa-bolt fa-fw"></i> Server Crashed!
-                            <span class="pull-right text-muted small"><em>11:13 AM</em>
-                            </span>
-                        </a>
-                        <a href="#" class="list-group-item">
-                            <i class="fa fa-warning fa-fw"></i> Server Not Responding
-                            <span class="pull-right text-muted small"><em>10:57 AM</em>
-                            </span>
-                        </a>
-                        <a href="#" class="list-group-item">
-                            <i class="fa fa-shopping-cart fa-fw"></i> New Order Placed
-                            <span class="pull-right text-muted small"><em>9:49 AM</em>
-                            </span>
-                        </a>
-                        <a href="#" class="list-group-item">
-                            <i class="fa fa-money fa-fw"></i> Payment Received
-                            <span class="pull-right text-muted small"><em>Yesterday</em>
-                            </span>
-                        </a>
+                    <div>
+                        <ul class="nav nav-pills">
+                            @foreach ($polo_tickers as $key=>$ticker)
+                                <li class="ticker-pair-button {{ $loop->first ? 'active' : '' }}"><a data-toggle="pill" href="#{{ $key }}">{{ $key }}</a></li>
+                            @endforeach
+                        </ul>
+                        
+                        <div class="tab-content">
+                        <!-- Create tab content for each base pair (ex: BTC, USDT, etc.) -->
+                            @foreach ($polo_tickers as $key=>$ticker)
+                                <div id="{{ $key }}" class="tab-pane fade {{ $loop->first ? 'in active' : '' }}">
+                                    <div class="table-responsive" style="height: 400px; overflow-y: auto;">
+                                        <table class="table table-bordered table-hover table-striped sortable ticker-table" id="{{ $key }}-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Pair</th>
+                                                    <th>Price</th>
+                                                    <th>Volume</th>
+                                                    <th>Change</th>
+                                                    <th>24hr High</th>
+                                                    <th>24hr Low</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Populate table data for each pair -->
+                                                @foreach ($ticker as $pair)
+                                                    <tr>
+                                                        <td>{{ $pair['pair'] }}</td>
+                                                        <td>{{ $pair['last'] }}</td>
+                                                        <td>{{ number_format($pair['baseVolume'], 2) }}</td>
+                                                        <td>{{ number_format($pair['percentChange'] * 100, 2) }}%</td>
+                                                        <td>{{ $pair['high24hr'] }}</td>
+                                                        <td>{{ $pair['low24hr'] }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
-                    <!-- /.list-group -->
+
+                    <!-- CONTENT REMOVED HERE -->
+
                     <a href="#" class="btn btn-default btn-block">View All Alerts</a>
                 </div>
                 <!-- /.panel-body -->
             </div>
+            <!-- End ticker panel -->
+
+
             <!-- /.panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -464,101 +470,5 @@
 </div>
 <!-- /#page-wrapper -->
 
-
-<script>
-    $(document).ready(function() {
-
-    $.getJSON('https://www.highcharts.com/samples/data/jsonp.php?filename=aapl-ohlcv.json&callback=?', function (data) {
-
-    // split the data set into ohlc and volume
-    var ohlc = [],
-    volume = [],
-    dataLength = data.length,
-        // set the allowed units for data grouping
-        groupingUnits = [[
-            'week',                         // unit name
-            [1]                             // allowed multiples
-            ], [
-            'month',
-            [1, 2, 3, 4, 6]
-            ]],
-
-            i = 0;
-
-            for (i; i < dataLength; i += 1) {
-                ohlc.push([
-            data[i][0], // the date
-            data[i][1], // open
-            data[i][2], // high
-            data[i][3], // low
-            data[i][4] // close
-            ]);
-
-                volume.push([
-            data[i][0], // the date
-            data[i][5] // the volume
-            ]);
-            }
-
-
-    // create the chart
-    Highcharts.stockChart('container', {
-
-        rangeSelector: {
-            selected: 1
-        },
-
-        title: {
-            text: 'AAPL Historical'
-        },
-
-        yAxis: [{
-            labels: {
-                align: 'right',
-                x: -3
-            },
-            title: {
-                text: 'OHLC'
-            },
-            height: '60%',
-            lineWidth: 2
-        }, {
-            labels: {
-                align: 'right',
-                x: -3
-            },
-            title: {
-                text: 'Volume'
-            },
-            top: '65%',
-            height: '35%',
-            offset: 0,
-            lineWidth: 2
-        }],
-
-        tooltip: {
-            split: true
-        },
-
-        series: [{
-            type: 'candlestick',
-            name: 'AAPL',
-            data: ohlc,
-            dataGrouping: {
-                units: groupingUnits
-            }
-        }, {
-            type: 'column',
-            name: 'Volume',
-            data: volume,
-            yAxis: 1,
-            dataGrouping: {
-                units: groupingUnits
-            }
-        }]
-    });
-});
-    });
-</script>
 
 @include('includes.footer')
