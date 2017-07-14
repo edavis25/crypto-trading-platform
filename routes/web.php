@@ -23,3 +23,9 @@ Route::get('/', 'DashboardController@index');
 Route::get('test', 'TestController@index');
 
 Route::get('email', 'EmailController@index');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('profile', 'UserController@profile')->name('profile');

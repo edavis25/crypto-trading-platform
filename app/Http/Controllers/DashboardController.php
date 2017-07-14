@@ -8,6 +8,11 @@ use App\Libraries\influxdb\InfluxDB;
 
 class DashboardController extends Controller
 {
+
+    public function __construct() {
+        $this->middleware('auth');
+    }
+
     public function index() {
 
         $this->getCurrentBtcPrice();
