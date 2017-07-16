@@ -14,8 +14,10 @@ class UserController extends Controller
 
     public function profile() {
         $user = Auth::user();
+        $apiKeys = \App\user_key::where('user_id', $user->id)->first();
         $data = array(
-            'user' => $user
+            'user' => $user,
+            'apiKeys' => $apiKeys
         );
         return view('profile', $data);
     }

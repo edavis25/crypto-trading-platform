@@ -204,6 +204,9 @@
                 <li>
                     <a href="{{ URL::to('profile') }}"><i class="fa fa-user fa-fw"></i> User Profile</a>
                 </li>
+                <li>
+                    <a href="{{ URL::to('/') }}"><i class="fa fa-tachometer fa-fw" aria-hidden="true"></i> Dashboard</a>
+                </li>
                 <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
                 </li>
                 <li class="divider"></li>

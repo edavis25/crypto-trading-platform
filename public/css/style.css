@@ -18,3 +18,11 @@
 #brand-logo>img {
     max-height: 35px;
 }
+
+.green {
+    color: green;
+}
+
+.red {
+    color: red;
+}
