@@ -12,6 +12,7 @@ class UserController extends Controller
         $this->middleware('auth');
     }
 
+    // Show user profile details
     public function profile() {
         $user = Auth::user();
         $apiKeys = \App\user_key::where('user_id', $user->id)->first();
