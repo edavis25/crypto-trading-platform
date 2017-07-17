@@ -15,24 +15,50 @@ class DashboardController extends Controller
 
     public function index() {
 
-        $this->getCurrentBtcPrice();
         // Create API objects
         $polo = new Poloniex(env('POLONIEX_API_KEY'), env('POLONIEX_API_SECRET'));
         $influx = new InfluxDB('crypto', 'http://192.168.0.101');
 
+        // Get all Poloniex tickers
+        $poloTickers = $polo->get_ticker('all');
+        $poloBalances = $this->formatPoloBalances($polo->get_available_balances());
 
         $data = array(
-            //'polo_tickers' => $polo -> get_ticker('all'),
-            'polo_tickers' => $this -> formatTickerArray($polo -> get_ticker('all')),
-            'polo_balances' => $polo -> get_available_balances(),
+            'btc_price' => $this->getBTC_USDT($poloTickers),
+            'polo_tickers' => $this->formatTickerArray($poloTickers),
+            //'polo_balances' => $this->formatPoloBalances($poloBalances),
             //'polo_coin_info' => $polo -> get_currency_data(),
             'db_pairs' => $influx -> getTagValues('pair')
         );
 
         // Calculate/add total BTC balance
-        $data['polo_total_btc'] = $this -> getTotalBtcBalance($data['polo_balances'], $data['polo_tickers']);
+        $data['polo_total_btc'] = $this -> getTotalBtcBalancePoloniex($poloBalances, $poloTickers);
+        $data['total_dollar_value'] = number_format(($data['polo_total_btc']) * $data['btc_price'], 2, '.', ',');
 
         return view('dashboard', $data);
+    }
+
+    private function formatBalanceArray($balances, $tickers) {
+        $arr = array();
+        print_r($balances); die;
+    }
+
+    // Combine all polo balances into 1 balance per coin 
+    // Currently there are separate balances for exchange, margin, and lending
+    // This sums them all into a single balance for each coin
+    private function formatPoloBalances($balances) {
+        $arr = array();
+        foreach ($balances as $exchange) {
+            foreach ($exchange as $key=>$balance) {
+                if (array_key_exists($key, $arr)){
+                    $arr[$key] += $balance;    
+                }
+                else {
+                    $arr[$key] = $balance;
+                }
+            }
+        }        
+        return $arr;
     }
 
 
@@ -65,6 +91,13 @@ class DashboardController extends Controller
         return $data;
     }
 
+
+    // Get BTC price in dollars based on USDT
+    private function getBTC_USDT($tickers) {
+        return number_format($tickers['USDT_BTC']['last'], 2, '.', '');
+    }
+
+
     // Get the current Bitcoin price from coindesk
     // Accepts USD, GBP,& EUR
     private function getCurrentBtcPrice($currencyType = 'USD') {
@@ -78,10 +111,24 @@ class DashboardController extends Controller
         return $str;
     }
 
-    private function getTotalBtcBalance($balances, $tickers) {
-        
-        foreach ($balances as $balance) {
-            
+
+    private function getTotalBtcBalancePoloniex($balances, $tickers) {
+        $amount = 0;
+        // Iterate each exchange type (exchange/margin/lending)
+        foreach ($balances as $exchange) {
+            // Iterate each currency balance per exchange
+            foreach ($exchange as $key=>$balance) {
+                // Get bitcoin value and add to amount
+                if ($key == 'BTC') {
+                    $amount += $balance;
+                    continue;
+                }
+
+                $price = $tickers['BTC_' . $key]['last'];
+                $btcVal = number_format($price * $balance, 8);
+                $amount += $btcVal;
+            }
         }
+        return $amount;
     }
 }

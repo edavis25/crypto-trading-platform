@@ -21,12 +21,12 @@
                             <i class="fa fa-money fa-5x" aria-hidden="true"></i>
                         </div>
                         <div class="col-xs-9 text-right">
-                            <div class="huge">26</div>
+                            <div class="huge">${{ $total_dollar_value }}</div>
                             <div>Portfolio Value</div>
                         </div>
                     </div>
                 </div>
-                <a href="#">
+                <a href="###" data-toggle="modal" data-target="#balances-modal" role="dialog">
                     <div class="panel-footer">
                         <span class="pull-left">View Details</span>
                         <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -467,6 +467,46 @@
         <!-- /.col-lg-4 -->
     </div>
     <!-- /.row -->
+
+    <!-- Balance Details Modal -->
+    <div id="balances-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Current Balances</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <td>Coin</td>
+                                    <td>Holdings</td>
+                                    <td>Trading Price</td>
+                                    <td>USD Value</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($polo_balances as $key=>$balance)
+                                <tr>
+                                    <td>{{ $key }}</td>
+                                    <td>{{ $balance }}</td>
+                                    <td>{{  }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 <!-- /#page-wrapper -->
 
