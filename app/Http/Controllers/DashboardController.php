@@ -1,5 +1,11 @@
 <?php
 
+// TODO: Refactor account balances functions to combine and format
+// balances into a single array for easy display within view.
+// Idea: formatPoloBalances() renamed to combinePolo() and then a new formatPoloBalances
+// function will take combined balances to create the array for the view w/ BTC/USD values
+
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
