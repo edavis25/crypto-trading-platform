@@ -2,8 +2,6 @@
 
 // TODO: Refactor account balances functions to combine and format
 // balances into a single array for easy display within view.
-// Idea: formatPoloBalances() renamed to combinePolo() and then a new formatPoloBalances
-// function will take combined balances to create the array for the view w/ BTC/USD values
 
 // NOTE: Don't forget there is a 6 call/second limit to the Poloniex API
 
@@ -136,9 +134,7 @@ class DashboardController extends Controller
         $data = json_decode(file_get_contents($url));
         $currency = $data->bpi->$currencyType;
 
-        // Build formatted string for display
-        //$price = $currency->symbol;                 // Add currency symbol
-        //$price = substr($currency->rate, 0, -2);     // Discard last 2 decimal places
+        // Get price and format into currency format w/o commas
         $price = $currency->rate;
         $price = str_replace(',', '', $price);         // Strip commas
         return number_format($price, 2, '.', '');
