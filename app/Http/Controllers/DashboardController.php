@@ -5,6 +5,7 @@
 // Idea: formatPoloBalances() renamed to combinePolo() and then a new formatPoloBalances
 // function will take combined balances to create the array for the view w/ BTC/USD values
 
+// NOTE: Don't forget there is a 6 call/second limit to the Poloniex API
 
 namespace App\Http\Controllers;
 
@@ -15,44 +16,47 @@ use App\Libraries\influxdb\InfluxDB;
 class DashboardController extends Controller
 {
 
+    private $polo;
+    private $influx;
+    private $btcPrice;
+
     public function __construct() {
         $this->middleware('auth');
+        $this->polo = new Poloniex(env('POLONIEX_API_KEY'), env('POLONIEX_API_SECRET'));
+        $this->influx = new InfluxDB('crypto', 'http://192.168.0.101');
+        $this->btcPrice = $this->getCurrentBtcPrice();
     }
 
     public function index() {
 
         // Create API objects
-        $polo = new Poloniex(env('POLONIEX_API_KEY'), env('POLONIEX_API_SECRET'));
-        $influx = new InfluxDB('crypto', 'http://192.168.0.101');
+        //$polo = new Poloniex(env('POLONIEX_API_KEY'), env('POLONIEX_API_SECRET'));
+        //$influx = new InfluxDB('crypto', 'http://192.168.0.101');
 
-        // Get all Poloniex tickers
-        $poloTickers = $polo->get_ticker('all');
-        $poloBalances = $this->formatPoloBalances($polo->get_available_balances());
+        // Make all Poloniex API calls (performed here so I can keep track of all calls)
+        $poloTickers = $this->polo->get_ticker('all');
+        $poloBalances = $this->polo->get_available_balances();
 
-        $data = array(
-            'btc_price' => $this->getBTC_USDT($poloTickers),
+        $data = array(            
+            'btc_price' => $this->btcPrice,
             'polo_tickers' => $this->formatTickerArray($poloTickers),
             //'polo_balances' => $this->formatPoloBalances($poloBalances),
+            'polo_balances' => $this->formatPoloBalances($poloBalances, $poloTickers),
+            'polo_total_btc' => $this->getTotalBtcBalancePolo($poloBalances, $poloTickers),
             //'polo_coin_info' => $polo -> get_currency_data(),
-            'db_pairs' => $influx -> getTagValues('pair')
+            'db_pairs' => $this->influx->getTagValues('pair')
         );
 
         // Calculate/add total BTC balance
-        $data['polo_total_btc'] = $this -> getTotalBtcBalancePoloniex($poloBalances, $poloTickers);
-        $data['total_dollar_value'] = number_format(($data['polo_total_btc']) * $data['btc_price'], 2, '.', ',');
-
+        //$data['polo_total_btc'] = $this -> getTotalBtcBalancePoloniex($poloBalances, $poloTickers);
+        $data['total_dollar_value'] = number_format(($data['polo_total_btc']) * $this->btcPrice, 2, '.', ',');
         return view('dashboard', $data);
-    }
-
-    private function formatBalanceArray($balances, $tickers) {
-        $arr = array();
-        print_r($balances); die;
     }
 
     // Combine all polo balances into 1 balance per coin 
     // Currently there are separate balances for exchange, margin, and lending
     // This sums them all into a single balance for each coin
-    private function formatPoloBalances($balances) {
+    private function combinePoloBalances($balances) {
         $arr = array();
         foreach ($balances as $exchange) {
             foreach ($exchange as $key=>$balance) {
@@ -67,6 +71,27 @@ class DashboardController extends Controller
         return $arr;
     }
 
+    private function formatPoloBalances($balances, $tickers) {
+        $balances = $this->combinePoloBalances($balances);  // Combine balances
+        $arr = array();
+
+        foreach($balances as $key=>$balance) {
+
+            if ($key == 'BTC') {
+                $btcValue = $balance;
+            }
+            else {
+                $btcValue = $tickers['BTC_' . strtoupper($key)]['last'] * $balance;
+            }
+
+            $arr[$key] = array(
+                'amount' => $balance,
+                'btc_value' => number_format($btcValue, 8, '.', ''),
+                'usd_value' => number_format($btcValue * $this->btcPrice, 2, '.', ',')
+            );
+        }
+        return $arr;
+    }
 
     // Split full ticker into array of arrays for each base trading pair
     // ex: array('BTC' => array(all BTC pairs), 'ETH' => array(all ETH pairs))
@@ -111,30 +136,31 @@ class DashboardController extends Controller
         $data = json_decode(file_get_contents($url));
         $currency = $data->bpi->$currencyType;
 
-        // Build formatted string for display (includes currency symbol)
-        $str = $currency->symbol;
-        $str .= substr($currency->rate, 0, -2);     // Discard last 2 decimal places
-        return $str;
+        // Build formatted string for display
+        //$price = $currency->symbol;                 // Add currency symbol
+        //$price = substr($currency->rate, 0, -2);     // Discard last 2 decimal places
+        $price = $currency->rate;
+        $price = str_replace(',', '', $price);         // Strip commas
+        return number_format($price, 2, '.', '');
     }
 
 
-    private function getTotalBtcBalancePoloniex($balances, $tickers) {
-        $amount = 0;
-        // Iterate each exchange type (exchange/margin/lending)
-        foreach ($balances as $exchange) {
-            // Iterate each currency balance per exchange
-            foreach ($exchange as $key=>$balance) {
-                // Get bitcoin value and add to amount
-                if ($key == 'BTC') {
-                    $amount += $balance;
-                    continue;
-                }
+    private function getTotalBtcBalancePolo($balances, $tickers) {
+        $amount = 0; 
+        $balances = $this->combinePoloBalances($balances);  // Combine balances
 
-                $price = $tickers['BTC_' . $key]['last'];
-                $btcVal = number_format($price * $balance, 8);
-                $amount += $btcVal;
+        foreach ($balances as $key=>$balance) {
+            // Get bitcoin value and add to amount
+            if ($key == 'BTC') {
+                $amount += $balance;
+                continue;
             }
+
+            $price = $tickers['BTC_' . $key]['last'];
+            $btcVal = number_format($price * $balance, 8);
+            $amount += $btcVal;
         }
+
         return $amount;
     }
 }

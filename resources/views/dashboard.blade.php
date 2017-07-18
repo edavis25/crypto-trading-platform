@@ -484,16 +484,17 @@
                                 <tr>
                                     <td>Coin</td>
                                     <td>Holdings</td>
-                                    <td>Trading Price</td>
+                                    <td>BTC Price</td>
                                     <td>USD Value</td>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($polo_balances as $key=>$balance)
+                                @foreach ($polo_balances as $key=>$balances)
                                 <tr>
                                     <td>{{ $key }}</td>
-                                    <td>{{ $balance }}</td>
-                                    <td>{{  }}</td>
+                                    <td>{{ $balances['amount'] }}</td>
+                                    <td>{{ $balances['btc_value'] }}</td>
+                                    <td>${{ $balances['usd_value'] }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
