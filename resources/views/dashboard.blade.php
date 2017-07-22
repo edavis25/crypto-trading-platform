@@ -43,12 +43,12 @@
                             <i class="fa fa-tasks fa-5x"></i>
                         </div>
                         <div class="col-xs-9 text-right">
-                            <div class="huge">12</div>
-                            <div>New Tasks!</div>
+                            <div class="huge">{{ $number_open_orders }}</div>
+                            <div>Open Positions</div>
                         </div>
                     </div>
                 </div>
-                <a href="#">
+                <a href="###" data-toggle="modal" data-target="#orders-modal" role="dialog">
                     <div class="panel-footer">
                         <span class="pull-left">View Details</span>
                         <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -496,6 +496,54 @@
                                     <td>{{ $balances['btc_value'] }}</td>
                                     <td>${{ $balances['usd_value'] }}</td>
                                 </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders modal -->
+    <div id="orders-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Open Positions</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <td>Date</td>
+                                    <td>Pair</td>
+                                    <td>Amount</td>
+                                    <td>Rate</td>
+                                    <td>Total</td>
+                                    <td>Type</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($open_orders as $key=>$order)
+                                
+                                    @foreach ($order as $detail)
+                                    <tr>
+                                    <td>{{ $detail['date'] }}</td>
+                                    <td>{{ $key }}</td>
+                                    <td>{{ $detail['amount'] }}</td>
+                                    <td>{{ $detail['rate'] }}</td>
+                                    <td>{{ $detail['total'] }}</td>
+                                    <td>{{ ($detail['margin']) ? 'Exchange' : 'Margin' }}
+                                    </tr>
+                                    @endforeach
+                                
                                 @endforeach
                             </tbody>
                         </table>

@@ -14,6 +14,9 @@ class UserController extends Controller
 
     // Show user profile details
     public function profile() {
+
+        $this->encrypt();
+
         $user = Auth::user();
         $apiKeys = \App\user_key::where('user_id', $user->id)->first();
         $data = array(
@@ -21,5 +24,20 @@ class UserController extends Controller
             'apiKeys' => $apiKeys
         );
         return view('profile', $data);
+    }
+
+    public function encrypt() {
+        $key  = 'That golden key that opes the palace of eternity.';
+        $data = 'The chicken escapes at dawn. Send help with Mr. Blue.';
+        $alg  = MCRYPT_BLOWFISH;
+        $mode = MCRYPT_MODE_CBC;
+
+        $iv = mcrypt_create_iv(mcrypt_get_iv_size($alg,$mode),MCRYPT_DEV_URANDOM);
+        $encrypted_data = mcrypt_encrypt($alg, $key, $data, $mode, $iv);
+        $plain_text = base64_encode($encrypted_data);
+
+        print $plain_text."\n";
+        $decoded = mcrypt_decrypt($alg,$key,base64_decode($plain_text),$mode,$iv);
+        print $decoded."\n";
     }
 }

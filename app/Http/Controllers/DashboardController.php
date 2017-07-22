@@ -34,6 +34,8 @@ class DashboardController extends Controller
         // Make all Poloniex API calls (performed here so I can keep track of all calls)
         $poloTickers = $this->polo->get_ticker('all');
         $poloBalances = $this->polo->get_available_balances();
+        $poloOpenOrders = $this->polo->get_open_orders('all');
+        //dd($poloOpenOrders);
 
         $data = array(            
             'btc_price' => $this->btcPrice,
@@ -42,7 +44,9 @@ class DashboardController extends Controller
             'polo_balances' => $this->formatPoloBalances($poloBalances, $poloTickers),
             'polo_total_btc' => $this->getTotalBtcBalancePolo($poloBalances, $poloTickers),
             //'polo_coin_info' => $polo -> get_currency_data(),
-            'db_pairs' => $this->influx->getTagValues('pair')
+            'db_pairs' => $this->influx->getTagValues('pair'),
+            'open_orders' => $poloOpenOrders,
+            'number_open_orders' => $this->countOpenOrders($poloOpenOrders)
         );
 
         // Calculate/add total BTC balance
@@ -67,6 +71,14 @@ class DashboardController extends Controller
             }
         }        
         return $arr;
+    }
+
+    private function countOpenOrders($orders) {
+        $count = 0;
+        foreach ($orders as $order) {
+            $count += count($order);
+        }
+        return $count;
     }
 
     private function formatPoloBalances($balances, $tickers) {
