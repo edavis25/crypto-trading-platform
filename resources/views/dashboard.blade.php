@@ -62,15 +62,15 @@
                 <div class="panel-heading">
                     <div class="row">
                         <div class="col-xs-3">
-                            <i class="fa fa-shopping-cart fa-5x"></i>
+                            <i class="fa fa-history fa-5x" aria-hidden="true"></i>
                         </div>
                         <div class="col-xs-9 text-right">
-                            <div class="huge">124</div>
-                            <div>New Orders!</div>
+                            <div class="huge">{{ count($polo_trade_history) }}</div>
+                            <div>Recent Trades</div>
                         </div>
                     </div>
                 </div>
-                <a href="#">
+                <a href="###" data-toggle="modal" data-target="#recent-trades-modal" role="dialog">
                     <div class="panel-footer">
                         <span class="pull-left">View Details</span>
                         <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -510,7 +510,7 @@
 
     <!-- Orders modal -->
     <div id="orders-modal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
@@ -519,7 +519,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="table-responsive">
-                        <table class="table table-striped table-bordered table-hover">
+                        <table class="table table-striped table-bordered table-hover" id="positions-table">
                             <thead>
                                 <tr>
                                     <td>Date</td>
@@ -540,11 +540,57 @@
                                     <td>{{ $detail['amount'] }}</td>
                                     <td>{{ $detail['rate'] }}</td>
                                     <td>{{ $detail['total'] }}</td>
-                                    <td>{{ ($detail['margin']) ? 'Exchange' : 'Margin' }}
+                                    <td>{{ ($detail['margin']) ? 'Margin' : 'Exchange' }}
                                     </tr>
                                     @endforeach
                                 
                                 @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Trades Modal -->
+    <div id="recent-trades-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Recent Trades (Last 24 hours)</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <td>Date</td>
+                                    <td>Pair</td>
+                                    <td>Rate</td>
+                                    <td>Amount</td>
+                                    <td>Total</td>
+                                    <td>Type</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ($polo_trade_history as $key=>$trades)
+                                @foreach ($trades as $trade)
+                                <tr>
+                                    <td>{{ $trade['date'] }}</td>
+                                    <td>{{ $key }}</td>
+                                    <td>{{ $trade['rate'] }}</td>
+                                    <td>{{ $trade['amount'] }}</td>
+                                    <td>{{ $trade['total'] }}</td>
+                                    <td>{{ $trade['type'] }}</td>
+                                </tr>
+                                @endforeach
+                            @endforeach
                             </tbody>
                         </table>
                     </div>

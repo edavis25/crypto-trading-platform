@@ -26,3 +26,7 @@
 .red {
     color: red;
 }
+
+#positions-table td {
+    white-space: nowrap;
+}
