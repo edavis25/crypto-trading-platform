@@ -36,7 +36,6 @@ class DashboardController extends Controller
         $poloBalances = $this->polo->get_available_balances();
         $poloOpenOrders = $this->polo->get_open_orders('all');
         $poloOrderBook = $this->polo->get_order_book('all');
-        $poloTradeHistory = $this->polo->get_my_trade_history('all');
 
         $data = array(            
             'btc_price' => $this->btcPrice,
@@ -50,7 +49,7 @@ class DashboardController extends Controller
             'number_open_orders' => $this->countOpenOrders($poloOpenOrders),
             'polo_trade_history' => $poloTradeHistory
         );
-
+				
         // Calculate/add total BTC balance
         //$data['polo_total_btc'] = $this -> getTotalBtcBalancePoloniex($poloBalances, $poloTickers);
         $data['total_dollar_value'] = number_format(($data['polo_total_btc']) * $this->btcPrice, 2, '.', ',');

@@ -65,7 +65,13 @@
                             <i class="fa fa-history fa-5x" aria-hidden="true"></i>
                         </div>
                         <div class="col-xs-9 text-right">
-                            <div class="huge">{{ count($polo_trade_history) }}</div>
+                            <div class="huge">
+                                @if ($polo_trade_history)
+                                    {{ count($polo_trade_history) }}
+                                @else 
+                                    {{ 0 }}
+                                @endif
+                            </div>
                             <div>Recent Trades</div>
                         </div>
                     </div>
@@ -579,6 +585,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                            @if ($polo_trade_history)
                             @foreach ($polo_trade_history as $key=>$trades)
                                 @foreach ($trades as $trade)
                                 <tr>
@@ -591,6 +598,7 @@
                                 </tr>
                                 @endforeach
                             @endforeach
+                            @endif
                             </tbody>
                         </table>
                     </div>
