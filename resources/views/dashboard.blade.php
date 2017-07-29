@@ -489,7 +489,7 @@
                                     <tr>
                                         <td>Coin</td>
                                         <td>Holdings</td>
-                                        <td>BTC Price</td>
+                                        <td>BTC Value</td>
                                         <td>USD Value</td>
                                     </tr>
                                 </thead>

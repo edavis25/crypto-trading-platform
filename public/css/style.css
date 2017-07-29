@@ -30,3 +30,8 @@
 #positions-table td {
     white-space: nowrap;
 }
+
+.alert-switch-label {
+    font-size: 1.2em;
+    margin-left: 7px;
+}

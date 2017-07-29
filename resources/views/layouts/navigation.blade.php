@@ -10,7 +10,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="index.html" class="brand-logo" id="brand-logo">
+        <a class="navbar-brand" href="{{ URL::to('/') }}" class="brand-logo" id="brand-logo">
             <img src="{{ URL::asset('img/text-logo.svg') }}" class="img img-responsive" />
         </a>
     </div>
