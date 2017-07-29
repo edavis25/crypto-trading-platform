@@ -36,7 +36,8 @@ class DashboardController extends Controller
         $poloBalances = $this->polo->get_available_balances();
         $poloOpenOrders = $this->polo->get_open_orders('all');
         $poloOrderBook = $this->polo->get_order_book('all');
-
+        $poloTradeHistory = $this->polo->get_my_trade_history('all');
+        
         $data = array(            
             'btc_price' => $this->btcPrice,
             'polo_tickers' => $this->formatTickerArray($poloTickers),

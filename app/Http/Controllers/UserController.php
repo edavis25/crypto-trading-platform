@@ -15,7 +15,7 @@ class UserController extends Controller
     // Show user profile details
     public function profile() {
 
-        $this->encrypt();
+        //$this->encrypt();
 
         $user = Auth::user();
         $apiKeys = \App\user_key::where('user_id', $user->id)->first();
@@ -26,6 +26,7 @@ class UserController extends Controller
         return view('profile', $data);
     }
 
+    // TESTING FUNCTION
     public function encrypt() {
         $key  = 'That golden key that opes the palace of eternity.';
         $data = 'The chicken escapes at dawn. Send help with Mr. Blue.';
