@@ -1,3 +1,10 @@
+<!-- 
+   - NOTE: This file has now been refactored to use Blade's templating features and
+   - should no longer be needed. Delete this file once the new refactor has undergone
+   - appropriate testing to make sure it works! 
+-->
+
+
 <!DOCTYPE html>
 <html lang="en">
 

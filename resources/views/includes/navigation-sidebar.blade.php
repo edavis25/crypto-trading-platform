@@ -1,3 +1,8 @@
+<!-- 
+   - NOTE: This file is not currently being used, it has just been kept to allow a rapid
+   - deploymet if the sidebar navigation is desired at a future date
+-->
+
 <!-- Sidebar nav (include within the "navigation.blade" file beneath the top nav in commented spot) -->
 <!-- If using the sidebar nav, the left margin needs uncommented in the theme's CSS file -->
 

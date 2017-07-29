@@ -1,10 +1,3 @@
-<!-- 
-   - NOTE: This file has now been refactored to use Blade's templating features and
-   - should no longer be needed. Delete this file once the new refactor has undergone
-   - appropriate testing to make sure it works! 
--->
-
-
 <!-- Navigation bar at the top of the page (include sidebar view in this file if desired) -->
 <!-- NOTE: If using the sidebar nav, uncomment the left margin line in the theme's CSS file -->
 
