@@ -10,6 +10,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Libraries\poloniex\Poloniex;
 use App\Libraries\influxdb\InfluxDB;
+use Auth;
+use DB;
 
 class DashboardController extends Controller
 {
@@ -31,6 +33,9 @@ class DashboardController extends Controller
         //$polo = new Poloniex(env('POLONIEX_API_KEY'), env('POLONIEX_API_SECRET'));
         //$influx = new InfluxDB('crypto', 'http://192.168.0.101');
 
+        // Get current user
+        $user = Auth::user();
+
         // Make all Poloniex API calls (performed here so I can keep track of all calls)
         $poloTickers = $this->polo->get_ticker('all');
         $poloBalances = $this->polo->get_available_balances();
@@ -38,6 +43,9 @@ class DashboardController extends Controller
         $poloOrderBook = $this->polo->get_order_book('all');
         $poloTradeHistory = $this->polo->get_my_trade_history('all');
         
+        // Get user subscriptions
+        $subscriptions = DB::table('user_subscriptions')->where('user_id', $user->id)->get();
+
         $data = array(            
             'btc_price' => $this->btcPrice,
             'polo_tickers' => $this->formatTickerArray($poloTickers),
@@ -48,7 +56,8 @@ class DashboardController extends Controller
             'db_pairs' => $this->influx->getTagValues('pair'),
             'open_orders' => $poloOpenOrders,
             'number_open_orders' => $this->countOpenOrders($poloOpenOrders),
-            'polo_trade_history' => $poloTradeHistory
+            'polo_trade_history' => $poloTradeHistory,
+            'user_subscriptions' => $subscriptions
         );
 				
         // Calculate/add total BTC balance
