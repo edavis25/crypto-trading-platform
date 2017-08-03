@@ -21,6 +21,7 @@ class AlertSubscriptionsController extends Controller
                           ->join('user_subscriptions', 'pairs.id', '=', 'user_subscriptions.pair_id')
                           ->select('pairs.id', 'pairs.pair')
                           ->where('user_id', '=', $user->id)
+                          ->orderBy('pairs.pair', 'asc')
                           ->get();
 
         $unsubscribed = DB::table('pairs')

@@ -7,6 +7,14 @@
             <div class="panel panel-default">
                 <div class="panel-heading">Login</div>
                 <div class="panel-body">
+                    <!-- Show any flash data-->
+                    @if (Session::has('message'))
+                        <div class="alert alert-dismissible alert-{{ session('message')['type'] }}">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <strong>{{ session('message')['message'] }}</strong><br>
+                    </div>
+                    @endif
+
                     <form class="form-horizontal" role="form" method="POST" action="{{ route('login') }}">
                         {{ csrf_field() }}
 

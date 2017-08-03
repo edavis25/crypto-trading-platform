@@ -3,10 +3,19 @@
 @section('title', 'Dashboard')
 
 @section('content')
+
     <div id="page-wrapper">
         <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header">Dashboard</h1>
+                @if ($errors)
+                    <div class="alert alert-dismissible alert-danger">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    @foreach ($errors as $error)
+                        <strong>{{ $error }}</strong><br>
+                    @endforeach
+                    </div>
+                @endif 
             </div>
             <!-- /.col-lg-12 -->
         </div>
@@ -97,7 +106,7 @@
                             </div>
                         </div>
                     </div>
-                    <a href="#">
+                    <a href="{{ URL::to('subscriptions') }}">
                         <div class="panel-footer">
                             <span class="pull-left">View Details</span>
                             <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -277,7 +286,8 @@
             </div>
             <!-- /.col-lg-8 -->
 
-            <!-- Right sidebar info -->
+
+            <!-- Ticker Box -->
             <div class="col-lg-4">
 
                 <!-- Ticker panel -->
@@ -287,52 +297,130 @@
                     </div>
                     <!-- /.panel-heading -->
                     <div class="panel-body">
-                        <div>
-                            <ul class="nav nav-pills">
-                                @foreach ($polo_tickers as $key=>$ticker)
-                                    <li class="ticker-pair-button {{ $loop->first ? 'active' : '' }}"><a data-toggle="pill" href="#{{ $key }}">{{ $key }}</a></li>
-                                @endforeach
-                            </ul>
-                            
-                            <div class="tab-content">
-                            <!-- Create tab content for each base pair (ex: BTC, USDT, etc.) -->
-                                @foreach ($polo_tickers as $key=>$ticker)
-                                    <div id="{{ $key }}" class="tab-pane fade {{ $loop->first ? 'in active' : '' }}">
-                                        <div class="table-responsive" style="height: 400px; overflow-y: auto;">
-                                            <table class="table table-bordered table-hover table-striped sortable ticker-table" id="{{ $key }}-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Pair</th>
-                                                        <th>Price</th>
-                                                        <th>Volume</th>
-                                                        <th>Change</th>
-                                                        <th>24hr High</th>
-                                                        <th>24hr Low</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <!-- Populate table data for each pair -->
-                                                    @foreach ($ticker as $pair)
-                                                        <tr>
-                                                            <td>{{ $pair['pair'] }}</td>
-                                                            <td>{{ $pair['last'] }}</td>
-                                                            <td>{{ number_format($pair['baseVolume'], 2) }}</td>
-                                                            <td>{{ number_format($pair['percentChange'] * 100, 2) }}%</td>
-                                                            <td>{{ $pair['high24hr'] }}</td>
-                                                            <td>{{ $pair['low24hr'] }}</td>
-                                                        </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
+                        <ul class="nav nav-tabs" style="float: right">
+                            <li class="active"><a data-toggle="tab" href="#poloniex-tickers">Poloniex</a></li>
+                            <li><a data-toggle="tab" href="#bittrex-tickers">Bittrex</a></li>
+                        </ul>
+
+                        <!-- Tab Content wrapper -->
+                        <div class="tab-content">
+                            <!-- Poloniex tickers tab -->
+                            <div id="poloniex-tickers" class="tab-pane fade in active">
+                                
+                                <ul class="nav nav-pills">
+                                    @foreach ($polo_tickers as $key=>$ticker)
+                                        <li class="ticker-pair-button {{ $loop->first ? 'active' : '' }}"><a data-toggle="pill" href="#{{ $key }}-polo">{{ $key }}</a></li>
+                                    @endforeach
+                                </ul>
+                                
+                                <div class="tab-content">
+                                <!-- Create tab content for each base pair (ex: BTC, USDT, etc.) -->
+                                    @if ($errors && !$polo_tickers)
+                                        <div class="alert alert-dismissible alert-danger">
+                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                        @foreach ($errors as $error)
+                                            <strong>{{ $error }}</strong><br>
+                                        @endforeach
                                         </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
+                                    @endif
+                                    @foreach ($polo_tickers as $key=>$ticker)
+                                        <div id="{{ $key }}-polo" class="tab-pane fade {{ $loop->first ? 'in active' : '' }}">
+                                            <div class="table-responsive" style="height: 400px; overflow-y: auto;">
+                                                <table class="table table-bordered table-hover table-striped sortable ticker-table" id="{{ $key }}-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Pair</th>
+                                                            <th>Price</th>
+                                                            <th>Volume</th>
+                                                            <th>Change</th>
+                                                            <th>24hr High</th>
+                                                            <th>24hr Low</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <!-- Populate table data for each pair -->
+                                                        @foreach ($ticker as $pair)
+                                                            <tr>
+                                                                <td>{{ $pair['pair'] }}</td>
+                                                                <td>{{ $pair['last'] }}</td>
+                                                                <td>{{ number_format($pair['baseVolume'], 2) }}</td>
+                                                                <td class="{{ ($pair['percentChange'] > 0) ? 'green' : 'red' }}">{{ number_format($pair['percentChange'] * 100, 2) }}%</td>
+                                                                <td>{{ $pair['high24hr'] }}</td>
+                                                                <td>{{ $pair['low24hr'] }}</td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div> <!-- /End poloniex tickers tab-->
+
+                            <!-- Bittrex tickers tab -->
+                            <div id="bittrex-tickers" class="tab-pane fade">
+                                
+
+                                <ul class="nav nav-pills">
+                                    @foreach ($bittrex_tickers as $key=>$ticker)
+                                        <li class="ticker-pair-button {{ $loop->first ? 'active' : '' }}"><a data-toggle="pill" href="#{{ $key }}-bittrex">{{ $key }}</a></li>
+                                    @endforeach
+                                </ul>
+
+                                <div class="tab-content">
+                                    @if ($errors && !$bittrex_tickers)
+                                        <div class="alert alert-dismissible alert-danger">
+                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                        @foreach ($errors as $error)
+                                            <strong>{{ $error }}</strong><br>
+                                        @endforeach
+                                        </div>
+                                    @endif
+                                    <!-- Create tab content for each base pair (ex: BTC, USDT, etc.) -->
+                                    @foreach ($bittrex_tickers as $key=>$ticker)
+                                        <div id="{{ $key }}-bittrex" class="tab-pane fade {{ $loop->first ? 'in active' : '' }}">
+                                            <div class="table-responsive" style="height: 400px; overflow-y: auto;">
+                                                <table class="table table-bordered table-hover table-striped sortable ticker-table" id="{{ $key }}-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Pair</th>
+                                                            <th>Price</th>
+                                                            <th>Volume</th>
+                                                            <th>Change</th>
+                                                            <th>24hr High</th>
+                                                            <th>24hr Low</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <!-- Populate table data for each pair -->
+                                                        @foreach ($ticker as $pair)
+                                                            <tr>
+                                                                <td>{{ $pair['pair'] }}</td>
+                                                                <td>{{ number_format($pair['Last'], 8) }}</td>
+                                                                <td>{{ number_format($pair['BaseVolume'], 2) }}</td>
+                                                                <td class="{{ ($pair['PercentChange'] > 0) ? 'green' : 'red' }}">{{ $pair['PercentChange'] }}%</td>
+                                                                <td>{{ $pair['High'] }}</td>
+                                                                <td>{{ $pair['Low'] }}</td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div> <!-- /End bittrex tickers tab -->
+
+                        </div> <!-- /End tab content wrapper -->
+
+
+
 
                         <!-- CONTENT REMOVED HERE -->
 
-                        <a href="#" class="btn btn-default btn-block">View All Alerts</a>
+
+
+                        <a href="{{ URL::to('subscriptions') }}" class="btn btn-default btn-block">Subscribe To Alerts</a>
                     </div>
                     <!-- /.panel-body -->
                 </div>

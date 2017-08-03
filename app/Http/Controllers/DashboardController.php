@@ -9,6 +9,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Libraries\poloniex\Poloniex;
+use App\Libraries\bittrex\Bittrex;
 use App\Libraries\influxdb\InfluxDB;
 use Auth;
 use DB;
@@ -17,12 +18,14 @@ class DashboardController extends Controller
 {
 
     private $polo;
+    private $bittrex;
     private $influx;
     private $btcPrice;
 
     public function __construct() {
         $this->middleware('auth');
         $this->polo = new Poloniex(env('POLONIEX_API_KEY'), env('POLONIEX_API_SECRET'));
+        $this->bittrex = new Bittrex();
         $this->influx = new InfluxDB('crypto', 'http://192.168.0.101');
         $this->btcPrice = $this->getCurrentBtcPrice();
     }
@@ -33,44 +36,76 @@ class DashboardController extends Controller
         //$polo = new Poloniex(env('POLONIEX_API_KEY'), env('POLONIEX_API_SECRET'));
         //$influx = new InfluxDB('crypto', 'http://192.168.0.101');
 
+        $errors = array();
+
         // Get current user
         $user = Auth::user();
 
+        // Get Bittrex Tickers
+        $bittrexTickers = $this->bittrex->get_formatted_market_summary();
+        $bittrexTickers = $this->formatTickerArray($bittrexTickers);
+        unset($bittrexTickers['BITCNY']);       // Remove the canadian currency ticker
+        // Init Poloniex variables
+        $poloTickers = array();
+        $poloBalances = array();
+        $poloOpenOrders = array();
+        $poloOrderBook = array();
+        $poloTradeHistory = array();
         // Make all Poloniex API calls (performed here so I can keep track of all calls)
-        $poloTickers = $this->polo->get_ticker('all');
-        $poloBalances = $this->polo->get_available_balances();
-        $poloOpenOrders = $this->polo->get_open_orders('all');
-        $poloOrderBook = $this->polo->get_order_book('all');
-        $poloTradeHistory = $this->polo->get_my_trade_history('all');
-        
+
+        try {
+            $poloTickers = $this->polo->get_ticker('all');
+            $poloBalances = $this->polo->get_available_balances();
+            //dd($poloBalances);
+            $poloOpenOrders = $this->polo->get_open_orders('all');
+            //dd($poloOpenOrders);
+            //$poloOrderBook = $this->polo->get_order_book('all');
+            //$poloTradeHistory = $this->polo->get_my_trade_history('all');
+        }
+        catch(\Exception $e) {
+            $errors[] = $e->getMessage() . ' - could not connect to API.';
+            //\Session::flash('errors', $e->getMessage());
+            // Init variables to empty array to show dashboard w/o data
+        }
+
         // Get user subscriptions
         $subscriptions = DB::table('user_subscriptions')->where('user_id', $user->id)->get();
 
         $data = array(            
             'btc_price' => $this->btcPrice,
+            // Poloniex Information
             'polo_tickers' => $this->formatTickerArray($poloTickers),
             //'polo_balances' => $this->formatPoloBalances($poloBalances),
             'polo_balances' => $this->formatPoloBalances($poloBalances, $poloTickers),
             'polo_total_btc' => $this->getTotalBtcBalancePolo($poloBalances, $poloTickers),
-            //'polo_coin_info' => $polo -> get_currency_data(),
-            'db_pairs' => $this->influx->getTagValues('pair'),
-            'open_orders' => $poloOpenOrders,
-            'number_open_orders' => $this->countOpenOrders($poloOpenOrders),
             'polo_trade_history' => $poloTradeHistory,
-            'user_subscriptions' => $subscriptions
+            'open_orders' => $poloOpenOrders,
+            // Bittrex Information
+            'bittrex_tickers' => $bittrexTickers,
+            // Meta information
+            'db_pairs' => $this->influx->getTagValues('pair'),
+            'number_open_orders' => $this->countOpenOrders($poloOpenOrders),
+            'user_subscriptions' => $subscriptions,
+            'errors' => $errors
         );
 				
         // Calculate/add total BTC balance
         //$data['polo_total_btc'] = $this -> getTotalBtcBalancePoloniex($poloBalances, $poloTickers);
         $data['total_dollar_value'] = number_format(($data['polo_total_btc']) * $this->btcPrice, 2, '.', ',');
         return view('dashboard', $data);
-    }
+        
+}
 
     // Combine all polo balances into 1 balance per coin 
     // Currently there are separate balances for exchange, margin, and lending
     // This sums them all into a single balance for each coin
     private function combinePoloBalances($balances) {
-        $arr = array();
+        $arr = array(); 
+        
+        if (!$balances) {
+            return $arr;
+        }
+
         foreach ($balances as $exchange) {
             foreach ($exchange as $key=>$balance) {
                 if (array_key_exists($key, $arr)){
@@ -86,6 +121,10 @@ class DashboardController extends Controller
 
     private function countOpenOrders($orders) {
         $count = 0;
+        if (!$orders) {
+            return $count;
+        }
+
         foreach ($orders as $order) {
             $count += count($order);
         }

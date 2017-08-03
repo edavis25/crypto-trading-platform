@@ -33,3 +33,5 @@ Route::get('profile', 'UserController@profile')->name('profile');
 Route::get('subscriptions', 'AlertSubscriptionsController@view')->name('subscriptions');
 
 Route::post('subscriptions/update', 'AlertSubscriptionsController@update');
+
+Route::get('register/verify/{token}', 'Auth\RegisterController@verify');
